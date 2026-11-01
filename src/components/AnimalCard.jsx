@@ -1,87 +1,109 @@
 // src/components/AnimalCard.jsx
-// This component displays an individual animal card with its status and action buttons.
+// Horizontal card design: text on the left, animal photo bleeding in from the right.
 
 export default function AnimalCard({ animal, onFeed, onPlay }) {
-  // Helper to determine bar color based on percentage
-  const getStatusColor = (value) => {
-    if (value >= 60) return '#10b981'; // Green
-    if (value >= 30) return '#f59e0b'; // Orange
-    return '#ef4444';                   // Red
+  // Derive a 0.0–5.0 star rating from happiness
+  const starRating = (animal.happiness / 20).toFixed(1);
+
+  // Color for status values
+  const statusColor = (v) => {
+    if (v >= 60) return '#10b981';
+    if (v >= 30) return '#f59e0b';
+    return '#ef4444';
   };
 
   return (
     <div className="animal-card">
-      {/* Top Habitat Tag */}
-      <div className="card-top">
+
+      {/* ── LEFT: all text content ─────────────────── */}
+      <div className="card-left">
+
+        {/* Habitat badge */}
         <span className="habitat-tag">{animal.habitat}</span>
-      </div>
 
-      {/* Animal Avatar & Name */}
-      <div className="avatar-circle">
-        <span className="avatar-emoji">{animal.emoji}</span>
-      </div>
-      <h3 className="animal-name">{animal.name}</h3>
-      <p className="animal-species">Species: {animal.species}</p>
+        {/* Name */}
+        <h3 className="animal-name">{animal.name}</h3>
 
-      {/* Status Progress Bars */}
-      <div className="meters">
-        {/* Hunger Bar */}
-        <div className="meter-item">
-          <div className="meter-label">
-            <span>🍖 Fullness:</span>
-            <strong>{animal.hunger}%</strong>
+        {/* Star rating row */}
+        <div className="card-rating">
+          <span className="star-icon">⭐</span>
+          <span className="star-value">{starRating}</span>
+          {animal.hunger < 35 && (
+            <span className="badge badge-hungry">HUNGRY</span>
+          )}
+          {animal.happiness < 35 && (
+            <span className="badge badge-sad">NEEDS PLAY</span>
+          )}
+        </div>
+
+        {/* Info rows (like Location / Show Time in the reference) */}
+        <div className="card-info">
+          <div className="info-row">
+            <span className="info-label">Species</span>
+            <span className="info-value">{animal.species}</span>
           </div>
-          <div className="meter-track">
-            <div
-              className="meter-fill"
-              style={{
-                width: `${animal.hunger}%`,
-                backgroundColor: getStatusColor(animal.hunger)
-              }}
-            />
+          <div className="info-row">
+            <span className="info-label">Fullness</span>
+            <span className="info-value" style={{ color: statusColor(animal.hunger) }}>
+              {animal.hunger}%
+            </span>
+          </div>
+          <div className="info-row">
+            <span className="info-label">Happiness</span>
+            <span className="info-value" style={{ color: statusColor(animal.happiness) }}>
+              {animal.happiness}%
+            </span>
           </div>
         </div>
 
-        {/* Happiness Bar */}
-        <div className="meter-item">
-          <div className="meter-label">
-            <span>❤️ Happiness:</span>
-            <strong>{animal.happiness}%</strong>
-          </div>
-          <div className="meter-track">
-            <div
-              className="meter-fill"
-              style={{
-                width: `${animal.happiness}%`,
-                backgroundColor: getStatusColor(animal.happiness)
-              }}
-            />
-          </div>
+        {/* Feed / Play buttons */}
+        <div className="card-actions">
+          <button
+            className="card-btn btn-feed"
+            onClick={() => onFeed(animal.id)}
+            disabled={animal.hunger >= 100}
+          >
+            🍖 Feed (+20)
+          </button>
+          <button
+            className="card-btn btn-play"
+            onClick={() => onPlay(animal.id)}
+            disabled={animal.happiness >= 100}
+          >
+            🎾 Play (+20)
+          </button>
+        </div>
+
+        {/* Fun fact strip */}
+        <div className="fact-strip">
+          💡 <strong>Did you know?</strong> {animal.funFact}
         </div>
       </div>
 
-      {/* Interactive Action Buttons */}
-      <div className="action-buttons">
-        <button
-          className="btn btn-feed"
-          onClick={() => onFeed(animal.id)}
-          disabled={animal.hunger >= 100}
+      {/* ── RIGHT: photo that bleeds in from the edge ── */}
+      <div className="card-right">
+        {/* Gradient that melts the image into the card bg */}
+        <div className="img-fade" />
+        {animal.image ? (
+          <img
+            src={animal.image}
+            alt={animal.species}
+            className="card-animal-img"
+            onError={(e) => {
+              // Graceful emoji fallback
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        <span
+          className="card-emoji-fallback"
+          style={{ display: animal.image ? 'none' : 'flex' }}
         >
-          🍖 Feed (+20)
-        </button>
-        <button
-          className="btn btn-play"
-          onClick={() => onPlay(animal.id)}
-          disabled={animal.happiness >= 100}
-        >
-          🎾 Play (+20)
-        </button>
+          {animal.emoji}
+        </span>
       </div>
 
-      {/* Fun Trivia Box */}
-      <div className="fact-box">
-        <small>💡 <strong>Did you know?</strong> {animal.funFact}</small>
-      </div>
     </div>
   );
 }
