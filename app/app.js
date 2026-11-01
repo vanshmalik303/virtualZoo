@@ -20,21 +20,16 @@ function createWindow() {
     }
   });
 
-  // Attempt to load dev server; fallback to built production bundle if not running
-  const devUrl = 'http://localhost:5173';
+  // Load the built production bundle; fall back to dev server only if dist is missing
   const distPath = path.join(import.meta.dirname, '../dist/index.html');
+  const devUrl = 'http://localhost:5173';
 
-  fetch(devUrl)
-    .then(() => {
-      mainWindow.loadURL(devUrl);
-    })
-    .catch(() => {
-      if (fs.existsSync(distPath)) {
-        mainWindow.loadFile(distPath);
-      } else {
-        mainWindow.loadURL(devUrl);
-      }
-    });
+  if (fs.existsSync(distPath)) {
+    mainWindow.loadFile(distPath);
+  } else {
+    // Dist not built yet — try the Vite dev server
+    mainWindow.loadURL(devUrl);
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;

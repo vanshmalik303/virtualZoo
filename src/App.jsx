@@ -111,7 +111,7 @@ export default function App() {
           {HABITATS.map((hab) => (
             <button
               key={hab}
-              className={`tab-btn ${selectedHabitat === habit ? 'active' : ''}`}
+              className={`tab-btn ${selectedHabitat === hab ? 'active' : ''}`}
               onClick={() => setSelectedHabitat(hab)}
             >
               {hab} {hab === 'All' ? `(${animals.length})` : ''}
