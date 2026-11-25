@@ -1,7 +1,7 @@
 // src/components/AnimalCard.jsx
 // Horizontal card design: text on the left, animal photo bleeding in from the right.
 
-export default function AnimalCard({ animal, onFeed, onPlay }) {
+export default function AnimalCard({ animal, onViewDetails }) {
   // Derive a 0.0–5.0 star rating from happiness
   const starRating = (animal.happiness / 20).toFixed(1);
 
@@ -10,6 +10,14 @@ export default function AnimalCard({ animal, onFeed, onPlay }) {
     if (v >= 60) return '#10b981';
     if (v >= 30) return '#f59e0b';
     return '#ef4444';
+  };
+
+  // Rarity badge color
+  const rarityColor = (r) => {
+    if (!r) return '#94a3b8';
+    if (r === 'Endangered' || r === 'Critically Endangered') return '#ef4444';
+    if (r === 'Vulnerable' || r === 'Near Threatened') return '#f59e0b';
+    return '#10b981';
   };
 
   return (
@@ -28,15 +36,21 @@ export default function AnimalCard({ animal, onFeed, onPlay }) {
         <div className="card-rating">
           <span className="star-icon">⭐</span>
           <span className="star-value">{starRating}</span>
-          {animal.hunger < 35 && (
-            <span className="badge badge-hungry">HUNGRY</span>
-          )}
-          {animal.happiness < 35 && (
-            <span className="badge badge-sad">NEEDS PLAY</span>
+          {animal.rarity && (
+            <span
+              className="badge"
+              style={{
+                background: `${rarityColor(animal.rarity)}20`,
+                color: rarityColor(animal.rarity),
+                border: `1px solid ${rarityColor(animal.rarity)}55`
+              }}
+            >
+              {animal.rarity.toUpperCase()}
+            </span>
           )}
         </div>
 
-        {/* Info rows (like Location / Show Time in the reference) */}
+        {/* Info rows */}
         <div className="card-info">
           <div className="info-row">
             <span className="info-label">Species</span>
@@ -56,21 +70,13 @@ export default function AnimalCard({ animal, onFeed, onPlay }) {
           </div>
         </div>
 
-        {/* Feed / Play buttons */}
+        {/* View Details button */}
         <div className="card-actions">
           <button
-            className="card-btn btn-feed"
-            onClick={() => onFeed(animal.id)}
-            disabled={animal.hunger >= 100}
+            className="card-btn btn-details"
+            onClick={() => onViewDetails(animal)}
           >
-            🍖 Feed (+20)
-          </button>
-          <button
-            className="card-btn btn-play"
-            onClick={() => onPlay(animal.id)}
-            disabled={animal.happiness >= 100}
-          >
-            🎾 Play (+20)
+            📋 View Details
           </button>
         </div>
 
@@ -90,7 +96,6 @@ export default function AnimalCard({ animal, onFeed, onPlay }) {
             alt={animal.species}
             className="card-animal-img"
             onError={(e) => {
-              // Graceful emoji fallback
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling.style.display = 'flex';
             }}

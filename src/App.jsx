@@ -1,103 +1,57 @@
 // src/App.jsx
 // Main controller component for the Virtual Zoo Desktop Application.
-// It manages:
-// 1. The list of animals (state)
-// 2. The active habitat filter (state)
-// 3. User actions: Feed, Play, and Add Animal (functions)
 
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import AnimalCard from './components/AnimalCard';
 import AddAnimalModal from './components/AddAnimalModal';
+import AnimalDetailsModal from './components/AnimalDetailsModal';
 import { INITIAL_ANIMALS, HABITATS } from './data/animals';
 import './App.css';
 
 export default function App() {
-  // -------------------------------------------------------------
-  // STATE VARIABLES
-  // -------------------------------------------------------------
-  // 1. 'animals': array storing all animals currently in our zoo
+  // STATE
   const [animals, setAnimals] = useState(INITIAL_ANIMALS);
-
-  // 2. 'selectedHabitat': filter by habitat ('All', 'Savannah', 'Jungle', etc.)
   const [selectedHabitat, setSelectedHabitat] = useState('All');
-
-  // 3. 'isModalOpen': controls whether the "Add Animal" modal dialog is open
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailAnimal, setDetailAnimal] = useState(null);
 
-  // -------------------------------------------------------------
-  // SIMULATION EFFECT: Slowly decreases hunger over time
-  // -------------------------------------------------------------
+  // SIMULATION: hunger drops by 3% every 15 seconds
   useEffect(() => {
-    // Every 15 seconds, hunger drops by 3% so animals need care
     const timer = setInterval(() => {
-      setAnimals((prevList) =>
-        prevList.map((animal) => ({
-          ...animal,
-          hunger: Math.max(0, animal.hunger - 3)
-        }))
+      setAnimals((prev) =>
+        prev.map((a) => ({ ...a, hunger: Math.max(0, a.hunger - 3) }))
       );
     }, 15000);
-
     return () => clearInterval(timer);
   }, []);
 
-  // -------------------------------------------------------------
-  // HANDLER FUNCTIONS (Simple and easy to explain!)
-  // -------------------------------------------------------------
-
-  // Function 1: Feed Animal (increases hunger/fullness by +20)
-  const handleFeed = (animalId) => {
-    setAnimals((prevList) =>
-      prevList.map((animal) => {
-        if (animal.id === animalId) {
-          return { ...animal, hunger: Math.min(100, animal.hunger + 20) };
-        }
-        return animal;
-      })
-    );
-  };
-
-  // Function 2: Play with Animal (increases happiness by +20)
-  const handlePlay = (animalId) => {
-    setAnimals((prevList) =>
-      prevList.map((animal) => {
-        if (animal.id === animalId) {
-          return { ...animal, happiness: Math.min(100, animal.happiness + 20) };
-        }
-        return animal;
-      })
-    );
-  };
-
-  // Function 3: Add New Animal to Zoo
+  // Add New Animal
   const handleAddAnimal = (newAnimalData) => {
-    const newAnimal = {
-      ...newAnimalData,
-      id: animals.length + 1
-    };
-    setAnimals((prevList) => [...prevList, newAnimal]);
+    const newAnimal = { ...newAnimalData, id: animals.length + 1 };
+    setAnimals((prev) => [...prev, newAnimal]);
   };
 
-  // -------------------------------------------------------------
+  // View animal details — find the live version in state so meters are current
+  const handleViewDetails = (animal) => {
+    const live = animals.find((a) => a.id === animal.id) || animal;
+    setDetailAnimal(live);
+  };
+
   // CALCULATED VALUES
-  // -------------------------------------------------------------
-  // Average happiness across all animals
   const averageHappiness = Math.round(
-    animals.reduce((total, a) => total + a.happiness, 0) / (animals.length || 1)
+    animals.reduce((t, a) => t + a.happiness, 0) / (animals.length || 1)
   );
 
-  // Filter animals based on the selected habitat tab
-  const displayedAnimals = selectedHabitat === 'All'
-    ? animals
-    : animals.filter((a) => a.habitat === selectedHabitat);
+  const displayedAnimals =
+    selectedHabitat === 'All'
+      ? animals
+      : animals.filter((a) => a.habitat === selectedHabitat);
 
-  // -------------------------------------------------------------
-  // RENDER (UI)
-  // -------------------------------------------------------------
+  // RENDER
   return (
     <div className="zoo-container">
-      {/* 1. Top Navbar */}
+      {/* 1. Navbar */}
       <Navbar
         totalAnimals={animals.length}
         averageHappiness={averageHappiness}
@@ -131,14 +85,13 @@ export default function App() {
             <AnimalCard
               key={animal.id}
               animal={animal}
-              onFeed={handleFeed}
-              onPlay={handlePlay}
+              onViewDetails={handleViewDetails}
             />
           ))
         )}
       </main>
 
-      {/* 4. Add Animal Modal Dialog */}
+      {/* 4. Add Animal Modal */}
       {isModalOpen && (
         <AddAnimalModal
           onClose={() => setIsModalOpen(false)}
@@ -146,7 +99,15 @@ export default function App() {
         />
       )}
 
-      {/* 5. Footer */}
+      {/* 5. Animal Details Modal */}
+      {detailAnimal && (
+        <AnimalDetailsModal
+          animal={detailAnimal}
+          onClose={() => setDetailAnimal(null)}
+        />
+      )}
+
+      {/* 6. Footer */}
       <footer className="zoo-footer">
         <p>🐾 Virtual Zoo Sanctuary • Interactive Desktop App</p>
       </footer>
