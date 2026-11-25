@@ -1,7 +1,7 @@
 // src/components/Navbar.jsx
 // Top navigation bar with elegant sanctuary branding and stats
 
-export default function Navbar({ totalAnimals, averageHappiness, onOpenModal }) {
+export default function Navbar({ totalAnimals, onOpenModal }) {
   return (
     <header className="zoo-navbar">
       <div className="brand">
@@ -18,10 +18,6 @@ export default function Navbar({ totalAnimals, averageHappiness, onOpenModal }) 
         <div className="stat-box">
           <span className="stat-label">RESIDENTS</span>
           <span className="stat-value">{totalAnimals}</span>
-        </div>
-        <div className="stat-box">
-          <span className="stat-label">HAPPINESS</span>
-          <span className="stat-value">{averageHappiness}%</span>
         </div>
         <button className="add-btn" onClick={onOpenModal}>
           + Add Resident

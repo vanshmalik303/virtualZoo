@@ -54,7 +54,6 @@ export default function App() {
       {/* 1. Navbar */}
       <Navbar
         totalAnimals={animals.length}
-        averageHappiness={averageHappiness}
         onOpenModal={() => setIsModalOpen(true)}
       />
 
