@@ -1,28 +1,30 @@
 // src/components/Navbar.jsx
-// This component displays the top navigation bar with zoo stats and the 'Add Animal' button.
+// Top navigation bar with elegant sanctuary branding and stats
 
 export default function Navbar({ totalAnimals, averageHappiness, onOpenModal }) {
   return (
     <header className="zoo-navbar">
       <div className="brand">
-        <span className="brand-icon">🦁</span>
-        <div>
-          <h1>Virtual Zoo Sanctuary</h1>
-          <p className="subtitle">Desktop Animal Care App</p>
+        <div className="brand-badge">EST. 2026</div>
+        <div className="brand-text">
+          <h1 className="brand-title">
+            VIRTUAL ZOO <span className="brand-accent">SANCTUARY</span>
+          </h1>
+          <p className="brand-tagline">WILDLIFE CONSERVATION & RESEARCH</p>
         </div>
       </div>
 
       <div className="zoo-stats">
         <div className="stat-box">
-          <span className="stat-label">Animals:</span>
+          <span className="stat-label">RESIDENTS</span>
           <span className="stat-value">{totalAnimals}</span>
         </div>
         <div className="stat-box">
-          <span className="stat-label">Zoo Happiness:</span>
+          <span className="stat-label">HAPPINESS</span>
           <span className="stat-value">{averageHappiness}%</span>
         </div>
         <button className="add-btn" onClick={onOpenModal}>
-          ➕ Add Animal
+          + Add Resident
         </button>
       </div>
     </header>
