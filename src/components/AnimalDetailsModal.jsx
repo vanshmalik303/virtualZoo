@@ -1,28 +1,45 @@
 // src/components/AnimalDetailsModal.jsx
-// A beautiful full-detail modal showing habitat, rarity, population, facts, etc.
+// This popup shows full details about an animal when the user clicks "View Details".
 
 export default function AnimalDetailsModal({ animal, onClose }) {
+  // If no animal is chosen, don't show anything
   if (!animal) return null;
 
-  // Rarity badge styling
-  const rarityStyle = (r) => {
-    if (r === 'Endangered' || r === 'Critically Endangered')
-      return { bg: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'rgba(239,68,68,0.4)' };
-    if (r === 'Vulnerable' || r === 'Near Threatened')
-      return { bg: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: 'rgba(245,158,11,0.4)' };
-    return { bg: 'rgba(16,185,129,0.15)', color: '#34d399', border: 'rgba(16,185,129,0.4)' };
+  // Simple color picker for the rarity badge
+  const getRarityBadgeStyle = (rarity) => {
+    if (rarity === 'Endangered' || rarity === 'Critically Endangered') {
+      return {
+        background: 'rgba(239, 68, 68, 0.15)',
+        color: '#f87171',
+        border: '1px solid rgba(239, 68, 68, 0.4)'
+      };
+    }
+    if (rarity === 'Vulnerable' || rarity === 'Near Threatened') {
+      return {
+        background: 'rgba(245, 158, 11, 0.15)',
+        color: '#fbbf24',
+        border: '1px solid rgba(245, 158, 11, 0.4)'
+      };
+    }
+    // Default safe / least concern (green)
+    return {
+      background: 'rgba(16, 185, 129, 0.15)',
+      color: '#34d399',
+      border: '1px solid rgba(16, 185, 129, 0.4)'
+    };
   };
 
-  const rs = rarityStyle(animal.rarity);
+  const badgeStyle = getRarityBadgeStyle(animal.rarity);
 
   return (
     <div className="detail-backdrop" onClick={onClose}>
+      {/* stopPropagation prevents closing when clicking inside the box */}
       <div className="detail-modal" onClick={(e) => e.stopPropagation()}>
 
-        {/* ── HERO BANNER with photo ───────────────── */}
+        {/* 1. Header with Animal Image and Name */}
         <div className="detail-hero">
           {animal.image ? (
-            <img src={animal.image} alt={animal.species} className="detail-hero-img" />
+            <img src={animal.image} alt={animal.name} className="detail-hero-img" />
           ) : (
             <div className="detail-hero-emoji">{animal.emoji}</div>
           )}
@@ -32,13 +49,13 @@ export default function AnimalDetailsModal({ animal, onClose }) {
             <h2 className="detail-title">{animal.name}</h2>
             <p className="detail-scientific">{animal.scientificName || animal.species}</p>
           </div>
-          <button className="detail-close-btn" onClick={onClose}>✕</button>
+          <button className="detail-close-btn" onClick={onClose} title="Close">✕</button>
         </div>
 
-        {/* ── BODY ─────────────────────────────────── */}
+        {/* 2. Main Content Body */}
         <div className="detail-body">
 
-          {/* Quick stats cards */}
+          {/* Quick stats grid */}
           <div className="detail-stats-grid">
             <div className="detail-stat-card">
               <span className="stat-card-icon">🛡️</span>
@@ -46,29 +63,29 @@ export default function AnimalDetailsModal({ animal, onClose }) {
               <span
                 className="stat-card-value"
                 style={{
-                  background: rs.bg,
-                  color: rs.color,
-                  border: `1px solid ${rs.border}`,
+                  ...badgeStyle,
                   padding: '3px 10px',
                   borderRadius: '20px',
                   fontSize: '12px',
                   fontWeight: 800
                 }}
               >
-                {animal.rarity || 'Unknown'}
+                {animal.rarity || 'Common'}
               </span>
             </div>
 
             <div className="detail-stat-card">
               <span className="stat-card-icon">📊</span>
-              <span className="stat-card-label">Population Left</span>
-              <span className="stat-card-value stat-population">{animal.populationLeft || 'Unknown'}</span>
+              <span className="stat-card-label">Species Left</span>
+              <span className="stat-card-value stat-population">
+                {animal.populationLeft || 'Many'}
+              </span>
             </div>
 
             <div className="detail-stat-card">
               <span className="stat-card-icon">🍖</span>
               <span className="stat-card-label">Diet</span>
-              <span className="stat-card-value">{animal.diet || 'Unknown'}</span>
+              <span className="stat-card-value">{animal.diet || 'Plants & Meat'}</span>
             </div>
 
             <div className="detail-stat-card">
@@ -90,60 +107,25 @@ export default function AnimalDetailsModal({ animal, onClose }) {
             </div>
           </div>
 
-          {/* Habitat description */}
+          {/* Habitat section */}
           <div className="detail-section">
             <h3 className="detail-section-title">🏞️ Habitat</h3>
             <p className="detail-section-text">
-              {animal.habitatDescription || `Lives in the ${animal.habitat} biome.`}
+              {animal.habitatDescription || `Lives in the ${animal.habitat} area.`}
             </p>
           </div>
 
-          {/* Facts */}
+          {/* Fun facts list */}
           <div className="detail-section">
-            <h3 className="detail-section-title">🧠 Fascinating Facts</h3>
+            <h3 className="detail-section-title">🧠 Cool Facts</h3>
             <ul className="detail-facts-list">
-              {(animal.facts && animal.facts.length > 0 ? animal.facts : [animal.funFact]).map(
-                (fact, i) => (
-                  <li key={i} className="detail-fact-item">
-                    <span className="fact-bullet">✦</span>
-                    <span>{fact}</span>
-                  </li>
-                )
-              )}
+              {(animal.facts || [animal.funFact]).map((fact, index) => (
+                <li key={index} className="detail-fact-item">
+                  <span className="fact-bullet">✦</span>
+                  <span>{fact}</span>
+                </li>
+              ))}
             </ul>
-          </div>
-
-          {/* Current status */}
-          <div className="detail-section">
-            <h3 className="detail-section-title">💊 Current Status in Zoo</h3>
-            <div className="detail-status-bars">
-              <div className="detail-bar-row">
-                <span className="detail-bar-label">🍖 Fullness</span>
-                <div className="detail-bar-track">
-                  <div
-                    className="detail-bar-fill"
-                    style={{
-                      width: `${animal.hunger}%`,
-                      background: animal.hunger >= 60 ? '#10b981' : animal.hunger >= 30 ? '#f59e0b' : '#ef4444'
-                    }}
-                  />
-                </div>
-                <span className="detail-bar-pct">{animal.hunger}%</span>
-              </div>
-              <div className="detail-bar-row">
-                <span className="detail-bar-label">❤️ Happiness</span>
-                <div className="detail-bar-track">
-                  <div
-                    className="detail-bar-fill"
-                    style={{
-                      width: `${animal.happiness}%`,
-                      background: animal.happiness >= 60 ? '#10b981' : animal.happiness >= 30 ? '#f59e0b' : '#ef4444'
-                    }}
-                  />
-                </div>
-                <span className="detail-bar-pct">{animal.happiness}%</span>
-              </div>
-            </div>
           </div>
 
         </div>

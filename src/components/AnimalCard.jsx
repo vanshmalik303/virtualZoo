@@ -1,48 +1,53 @@
 // src/components/AnimalCard.jsx
-// Horizontal card design: text on the left, animal photo bleeding in from the right.
+// This card shows an animal photo on the right and its basic info on the left.
 
 export default function AnimalCard({ animal, onViewDetails }) {
-  // Derive a 0.0–5.0 star rating from happiness
-  const starRating = (animal.happiness / 20).toFixed(1);
+  // Convert happiness (0 to 100) into a star score out of 5 (like 4.5 ⭐)
+  const starScore = (animal.happiness / 20).toFixed(1);
 
-  // Color for status values
-  const statusColor = (v) => {
-    if (v >= 60) return '#10b981';
-    if (v >= 30) return '#f59e0b';
-    return '#ef4444';
+  // Pick a simple color for hunger and happiness numbers
+  const getNumberColor = (value) => {
+    if (value >= 60) return '#10b981'; // Green: good!
+    if (value >= 30) return '#f59e0b'; // Yellow: okay
+    return '#ef4444';                  // Red: needs attention!
   };
 
-  // Rarity badge color
-  const rarityColor = (r) => {
-    if (!r) return '#94a3b8';
-    if (r === 'Endangered' || r === 'Critically Endangered') return '#ef4444';
-    if (r === 'Vulnerable' || r === 'Near Threatened') return '#f59e0b';
-    return '#10b981';
+  // Color tag for rarity
+  const getRarityTag = (rarity) => {
+    if (rarity === 'Endangered' || rarity === 'Critically Endangered') {
+      return { bg: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '#ef4444' };
+    }
+    if (rarity === 'Vulnerable' || rarity === 'Near Threatened') {
+      return { bg: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', border: '#f59e0b' };
+    }
+    return { bg: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '#10b981' };
   };
+
+  const tag = getRarityTag(animal.rarity);
 
   return (
     <div className="animal-card">
 
-      {/* ── LEFT: all text content ─────────────────── */}
+      {/* LEFT SIDE: Information */}
       <div className="card-left">
 
-        {/* Habitat badge */}
+        {/* Habitat tag */}
         <span className="habitat-tag">{animal.habitat}</span>
 
-        {/* Name */}
+        {/* Animal Name */}
         <h3 className="animal-name">{animal.name}</h3>
 
-        {/* Star rating row */}
+        {/* Star Rating & Rarity */}
         <div className="card-rating">
           <span className="star-icon">⭐</span>
-          <span className="star-value">{starRating}</span>
+          <span className="star-value">{starScore}</span>
           {animal.rarity && (
             <span
               className="badge"
               style={{
-                background: `${rarityColor(animal.rarity)}20`,
-                color: rarityColor(animal.rarity),
-                border: `1px solid ${rarityColor(animal.rarity)}55`
+                background: tag.bg,
+                color: tag.color,
+                border: `1px solid ${tag.border}`
               }}
             >
               {animal.rarity.toUpperCase()}
@@ -50,7 +55,7 @@ export default function AnimalCard({ animal, onViewDetails }) {
           )}
         </div>
 
-        {/* Info rows */}
+        {/* Animal Details List */}
         <div className="card-info">
           <div className="info-row">
             <span className="info-label">Species</span>
@@ -58,19 +63,19 @@ export default function AnimalCard({ animal, onViewDetails }) {
           </div>
           <div className="info-row">
             <span className="info-label">Fullness</span>
-            <span className="info-value" style={{ color: statusColor(animal.hunger) }}>
+            <span className="info-value" style={{ color: getNumberColor(animal.hunger) }}>
               {animal.hunger}%
             </span>
           </div>
           <div className="info-row">
             <span className="info-label">Happiness</span>
-            <span className="info-value" style={{ color: statusColor(animal.happiness) }}>
+            <span className="info-value" style={{ color: getNumberColor(animal.happiness) }}>
               {animal.happiness}%
             </span>
           </div>
         </div>
 
-        {/* View Details button */}
+        {/* Button to open full details */}
         <div className="card-actions">
           <button
             className="card-btn btn-details"
@@ -80,22 +85,22 @@ export default function AnimalCard({ animal, onViewDetails }) {
           </button>
         </div>
 
-        {/* Fun fact strip */}
+        {/* Fun fact box */}
         <div className="fact-strip">
           💡 <strong>Did you know?</strong> {animal.funFact}
         </div>
       </div>
 
-      {/* ── RIGHT: photo that bleeds in from the edge ── */}
+      {/* RIGHT SIDE: Real Animal Photo */}
       <div className="card-right">
-        {/* Gradient that melts the image into the card bg */}
         <div className="img-fade" />
         {animal.image ? (
           <img
             src={animal.image}
-            alt={animal.species}
+            alt={animal.name}
             className="card-animal-img"
             onError={(e) => {
+              // If image fails, show emoji instead
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling.style.display = 'flex';
             }}
